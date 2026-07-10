@@ -8,105 +8,210 @@
 </head>
 <body>
 
-  <header>
-    <h1>📚 Bibliothèque Numérique</h1>
-    <p>Plateforme microservices : Livres · Utilisateurs · Emprunts</p>
-  </header>
+  <header class="entete">
+    <div class="entete-contenu">
+      <div class="marque">
+        <span class="marque-icone" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M4 5.5C4 4.67 4.67 4 5.5 4H11V20H5.5C4.67 20 4 19.33 4 18.5V5.5Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+            <path d="M20 5.5C20 4.67 19.33 4 18.5 4H13V20H18.5C19.33 20 20 19.33 20 18.5V5.5Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+            <path d="M11 4H13V20H11V4Z" fill="currentColor"/>
+          </svg>
+        </span>
+        <div>
+          <h1>Bibliothèque Numérique</h1>
+          <p>Plateforme microservices — Livres · Utilisateurs · Emprunts</p>
+        </div>
+      </div>
+    </div>
 
-  <nav class="onglets">
-    <button class="onglet-btn actif" data-cible="section-livres">Livres</button>
-    <button class="onglet-btn" data-cible="section-utilisateurs">Utilisateurs</button>
-    <button class="onglet-btn" data-cible="section-emprunts">Emprunts</button>
-  </nav>
+    <nav class="onglets" aria-label="Sections de l'application">
+      <button class="onglet-btn actif" data-cible="section-livres" type="button">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M4 5.5C4 4.67 4.67 4 5.5 4H11V20H5.5C4.67 20 4 19.33 4 18.5V5.5Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M20 5.5C20 4.67 19.33 4 18.5 4H13V20H18.5C19.33 20 20 19.33 20 18.5V5.5Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+        Livres
+      </button>
+      <button class="onglet-btn" data-cible="section-utilisateurs" type="button">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="9" cy="8" r="3.2" stroke="currentColor" stroke-width="1.6"/><path d="M3.5 19.5C3.5 16.46 6.1 14 9 14C11.9 14 14.5 16.46 14.5 19.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M15.5 8.2C16.9 8.2 18 9.4 18 10.8C18 12.2 16.9 13.4 15.5 13.4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M15.8 14.2C18.1 14.6 19.8 16.6 19.8 19.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+        Utilisateurs
+      </button>
+      <button class="onglet-btn" data-cible="section-emprunts" type="button">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M4 7H16M16 7L12.5 3.5M16 7L12.5 10.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M20 17H8M8 17L11.5 13.5M8 17L11.5 20.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Emprunts
+      </button>
+    </nav>
+  </header>
 
   <main>
 
     <!-- ===================== SECTION LIVRES ===================== -->
     <section id="section-livres" class="onglet-contenu actif">
-      <h2>Gestion des livres</h2>
 
-      <form id="form-livre" class="formulaire">
-        <input type="hidden" id="livre-id" />
-        <input type="text" id="livre-titre" placeholder="Titre" required />
-        <input type="text" id="livre-auteur" placeholder="Auteur" required />
-        <input type="text" id="livre-isbn" placeholder="ISBN" required />
-        <button type="submit">Ajouter / Modifier</button>
-        <button type="button" id="livre-annuler" class="secondaire">Annuler modification</button>
-      </form>
+      <div class="grille-panneaux">
+        <div class="panneau panneau-formulaire">
+          <h2>Ajouter / modifier un livre</h2>
 
-      <div class="recherche">
-        <input type="text" id="recherche-titre" placeholder="Rechercher par titre" />
-        <input type="text" id="recherche-auteur" placeholder="Rechercher par auteur" />
-        <input type="text" id="recherche-isbn" placeholder="Rechercher par ISBN" />
-        <button id="btn-rechercher">Rechercher</button>
-        <button id="btn-reset-recherche" class="secondaire">Réinitialiser</button>
+          <form id="form-livre" class="formulaire">
+            <input type="hidden" id="livre-id" />
+
+            <div class="champ">
+              <label for="livre-titre">Titre <span class="requis">*</span></label>
+              <input type="text" id="livre-titre" autocomplete="off" required />
+            </div>
+            <div class="champ">
+              <label for="livre-auteur">Auteur <span class="requis">*</span></label>
+              <input type="text" id="livre-auteur" autocomplete="off" required />
+            </div>
+            <div class="champ">
+              <label for="livre-isbn">ISBN <span class="requis">*</span></label>
+              <input type="text" id="livre-isbn" autocomplete="off" required />
+            </div>
+
+            <div class="actions-formulaire">
+              <button type="submit" class="btn btn-primaire" id="livre-submit">Ajouter le livre</button>
+              <button type="button" id="livre-annuler" class="btn btn-fantome">Annuler</button>
+            </div>
+
+            <div id="message-livres" class="message" role="status" aria-live="polite"></div>
+          </form>
+        </div>
+
+        <div class="panneau panneau-recherche">
+          <h2>Rechercher</h2>
+          <div class="recherche">
+            <div class="champ">
+              <label for="recherche-titre">Titre</label>
+              <input type="text" id="recherche-titre" placeholder="Ex : Le Petit Prince" />
+            </div>
+            <div class="champ">
+              <label for="recherche-auteur">Auteur</label>
+              <input type="text" id="recherche-auteur" placeholder="Ex : Victor Hugo" />
+            </div>
+            <div class="champ">
+              <label for="recherche-isbn">ISBN</label>
+              <input type="text" id="recherche-isbn" placeholder="Ex : 978-..." />
+            </div>
+            <div class="actions-formulaire">
+              <button id="btn-rechercher" class="btn btn-secondaire" type="button">Rechercher</button>
+              <button id="btn-reset-recherche" class="btn btn-fantome" type="button">Réinitialiser</button>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <div id="message-livres" class="message"></div>
-
-      <table>
-        <thead>
-          <tr>
-            <th>ID</th><th>Titre</th><th>Auteur</th><th>ISBN</th><th>Disponible</th><th>Actions</th>
-          </tr>
-        </thead>
-        <tbody id="tableau-livres"></tbody>
-      </table>
+      <div class="panneau">
+        <div class="panneau-entete-liste">
+          <h2>Catalogue</h2>
+          <span class="compteur" id="compteur-livres"></span>
+        </div>
+        <div class="tableau-conteneur">
+          <table>
+            <thead>
+              <tr>
+                <th class="col-id">ID</th><th>Titre</th><th>Auteur</th><th>ISBN</th><th>Statut</th><th class="col-actions">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="tableau-livres"></tbody>
+          </table>
+        </div>
+      </div>
     </section>
 
     <!-- ================== SECTION UTILISATEURS =================== -->
     <section id="section-utilisateurs" class="onglet-contenu">
-      <h2>Gestion des utilisateurs</h2>
 
-      <form id="form-utilisateur" class="formulaire">
-        <input type="text" id="utilisateur-nom" placeholder="Nom complet" required />
-        <input type="email" id="utilisateur-email" placeholder="Email" required />
-        <select id="utilisateur-type" required>
-          <option value="" disabled selected>Type d'utilisateur</option>
-          <option value="Etudiant">Étudiant</option>
-          <option value="Professeur">Professeur</option>
-          <option value="Personnel administratif">Personnel administratif</option>
-        </select>
-        <button type="submit">Créer l'utilisateur</button>
-      </form>
+      <div class="panneau panneau-formulaire panneau-formulaire-large">
+        <h2>Créer un utilisateur</h2>
 
-      <div id="message-utilisateurs" class="message"></div>
+        <form id="form-utilisateur" class="formulaire">
+          <div class="champ">
+            <label for="utilisateur-nom">Nom complet <span class="requis">*</span></label>
+            <input type="text" id="utilisateur-nom" autocomplete="name" required />
+          </div>
+          <div class="champ">
+            <label for="utilisateur-email">Email <span class="requis">*</span></label>
+            <input type="email" id="utilisateur-email" autocomplete="email" required />
+          </div>
+          <div class="champ">
+            <label for="utilisateur-type">Type d'utilisateur <span class="requis">*</span></label>
+            <select id="utilisateur-type" required>
+              <option value="" disabled selected>Choisir un type</option>
+              <option value="Etudiant">Étudiant</option>
+              <option value="Professeur">Professeur</option>
+              <option value="Personnel administratif">Personnel administratif</option>
+            </select>
+          </div>
 
-      <table>
-        <thead>
-          <tr><th>ID</th><th>Nom</th><th>Email</th><th>Type</th></tr>
-        </thead>
-        <tbody id="tableau-utilisateurs"></tbody>
-      </table>
+          <div class="actions-formulaire">
+            <button type="submit" class="btn btn-primaire" id="utilisateur-submit">Créer l'utilisateur</button>
+          </div>
+
+          <div id="message-utilisateurs" class="message" role="status" aria-live="polite"></div>
+        </form>
+      </div>
+
+      <div class="panneau">
+        <div class="panneau-entete-liste">
+          <h2>Utilisateurs</h2>
+          <span class="compteur" id="compteur-utilisateurs"></span>
+        </div>
+        <div class="tableau-conteneur">
+          <table>
+            <thead>
+              <tr><th class="col-id">ID</th><th>Nom</th><th>Email</th><th>Type</th></tr>
+            </thead>
+            <tbody id="tableau-utilisateurs"></tbody>
+          </table>
+        </div>
+      </div>
     </section>
 
     <!-- ==================== SECTION EMPRUNTS ===================== -->
     <section id="section-emprunts" class="onglet-contenu">
-      <h2>Gestion des emprunts</h2>
 
-      <form id="form-emprunt" class="formulaire">
-        <input type="number" id="emprunt-id-livre" placeholder="ID du livre" required min="1" />
-        <input type="number" id="emprunt-id-utilisateur" placeholder="ID de l'utilisateur" required min="1" />
-        <button type="submit">Emprunter</button>
-      </form>
+      <div class="panneau panneau-formulaire panneau-formulaire-large">
+        <h2>Emprunter un livre</h2>
+        <p class="panneau-aide">Les identifiants se trouvent dans les onglets « Livres » et « Utilisateurs ».</p>
 
-      <div id="message-emprunts" class="message"></div>
+        <form id="form-emprunt" class="formulaire">
+          <div class="champ">
+            <label for="emprunt-id-livre">ID du livre <span class="requis">*</span></label>
+            <input type="number" id="emprunt-id-livre" min="1" required />
+          </div>
+          <div class="champ">
+            <label for="emprunt-id-utilisateur">ID de l'utilisateur <span class="requis">*</span></label>
+            <input type="number" id="emprunt-id-utilisateur" min="1" required />
+          </div>
 
-      <h3>Historique des emprunts</h3>
-      <table>
-        <thead>
-          <tr>
-            <th>ID</th><th>ID Livre</th><th>ID Utilisateur</th>
-            <th>Date emprunt</th><th>Date retour</th><th>Actions</th>
-          </tr>
-        </thead>
-        <tbody id="tableau-emprunts"></tbody>
-      </table>
+          <div class="actions-formulaire">
+            <button type="submit" class="btn btn-primaire" id="emprunt-submit">Emprunter</button>
+          </div>
+
+          <div id="message-emprunts" class="message" role="status" aria-live="polite"></div>
+        </form>
+      </div>
+
+      <div class="panneau">
+        <div class="panneau-entete-liste">
+          <h2>Historique des emprunts</h2>
+          <span class="compteur" id="compteur-emprunts"></span>
+        </div>
+        <div class="tableau-conteneur">
+          <table>
+            <thead>
+              <tr>
+                <th>Livre</th><th>Utilisateur</th>
+                <th>Date d'emprunt</th><th>Date de retour</th><th class="col-actions">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="tableau-emprunts"></tbody>
+          </table>
+        </div>
+      </div>
     </section>
 
   </main>
 
-  <footer>
+  <footer class="pied">
     <p>Examen Containers &amp; Virtualisation — L2 DIT — Architecture microservices Dockerisée</p>
   </footer>
 

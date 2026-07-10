@@ -35,14 +35,30 @@ def get_connection():
     )
 
 
+# Catalogue de démarrage : quelques classiques réels pour ne pas partir
+# d'une base vide à la première installation (deux titres démarrent
+# indisponibles pour illustrer l'état "emprunté" dans l'interface).
+LIVRES_INITIAUX = [
+    ("1984", "George Orwell", "978-2070368228", True),
+    ("Le Petit Prince", "Antoine de Saint-Exupéry", "978-2070408504", True),
+    ("Les Misérables", "Victor Hugo", "978-2253096374", False),
+    ("L'Étranger", "Albert Camus", "978-2070360024", True),
+    ("Harry Potter à l'école des sorciers", "J.K. Rowling", "978-2070518514", True),
+    ("Le Seigneur des Anneaux", "J.R.R. Tolkien", "978-2266154116", False),
+    ("Candide", "Voltaire", "978-2081221415", True),
+    ("Les Fleurs du mal", "Charles Baudelaire", "978-2080712066", True),
+]
+
+
 def init_db():
     """
-    Crée la table 'livres' si elle n'existe pas encore.
-    On réessaie plusieurs fois car PostgreSQL peut mettre quelques
-    secondes à être prêt au démarrage de docker-compose.
+    Crée la table 'livres' si elle n'existe pas encore, et la peuple avec
+    un catalogue de démarrage si elle est vide. On réessaie plusieurs fois
+    car PostgreSQL peut mettre quelques secondes à être prêt au démarrage
+    de docker-compose.
     """
     tentatives = 10
-    for i in range(tentatives):
+    for _ in range(tentatives):
         try:
             conn = get_connection()
             cur = conn.cursor()
@@ -58,6 +74,17 @@ def init_db():
                 """
             )
             conn.commit()
+
+            cur.execute("SELECT COUNT(*) FROM livres;")
+            (nombre_livres,) = cur.fetchone()
+            if nombre_livres == 0:
+                cur.executemany(
+                    "INSERT INTO livres (titre, auteur, isbn, disponible) VALUES (%s, %s, %s, %s);",
+                    LIVRES_INITIAUX,
+                )
+                conn.commit()
+                print(f"[service-livres] {len(LIVRES_INITIAUX)} livres de démarrage insérés.")
+
             cur.close()
             conn.close()
             print("[service-livres] Table 'livres' prête.")
