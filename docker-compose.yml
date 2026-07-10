@@ -1,7 +1,7 @@
 # ==========================================================================
-# Plateforme Bibliothèque Numérique - Architecture microservices
-# 5 conteneurs : postgres, service-livres, service-utilisateurs,
-# service-emprunts, frontend, tous connectés au même réseau Docker.
+# Plateforme Bibliothèque Numérique
+# 3 conteneurs : postgres, backend, frontend, tous connectés au même
+# réseau Docker.
 # ==========================================================================
 
 services:
@@ -27,10 +27,10 @@ services:
       timeout: 5s
       retries: 10
 
-  # --------------------------- Service Livres ---------------------------
-  service-livres:
-    build: ./service-livres
-    container_name: service-livres
+  # ----------------------------- Backend ---------------------------------
+  backend:
+    build: ./backend
+    container_name: backend
     restart: unless-stopped
     environment:
       DB_HOST: postgres
@@ -46,47 +46,6 @@ services:
     networks:
       - reseau-bibliotheque
 
-  # ------------------------ Service Utilisateurs ------------------------
-  service-utilisateurs:
-    build: ./service-utilisateurs
-    container_name: service-utilisateurs
-    restart: unless-stopped
-    environment:
-      DB_HOST: postgres
-      DB_PORT: 5432
-      DB_NAME: bibliotheque
-      DB_USER: postgres
-      DB_PASSWORD: postgres
-    ports:
-      - "5002:5002"
-    depends_on:
-      postgres:
-        condition: service_healthy
-    networks:
-      - reseau-bibliotheque
-
-  # -------------------------- Service Emprunts --------------------------
-  service-emprunts:
-    build: ./service-emprunts
-    container_name: service-emprunts
-    restart: unless-stopped
-    environment:
-      DB_HOST: postgres
-      DB_PORT: 5432
-      DB_NAME: bibliotheque
-      DB_USER: postgres
-      DB_PASSWORD: postgres
-      SERVICE_LIVRES_URL: http://service-livres:5001
-    ports:
-      - "5003:5003"
-    depends_on:
-      postgres:
-        condition: service_healthy
-      service-livres:
-        condition: service_started
-    networks:
-      - reseau-bibliotheque
-
   # ----------------------------- Frontend --------------------------------
   frontend:
     build: ./frontend
@@ -95,9 +54,7 @@ services:
     ports:
       - "8080:80"
     depends_on:
-      - service-livres
-      - service-utilisateurs
-      - service-emprunts
+      - backend
     networks:
       - reseau-bibliotheque
 

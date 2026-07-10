@@ -1,16 +1,17 @@
 /**
  * Frontend JavaScript pur (aucun framework).
- * Communique avec les 3 microservices via fetch().
+ * Communique avec le backend via fetch().
  *
- * Les services backend sont exposés directement sur l'hôte par
- * docker-compose (ports 5001/5002/5003), donc le navigateur les
- * appelle en HTTP direct depuis la même machine que le frontend.
+ * Le backend est exposé directement sur l'hôte par docker-compose
+ * (port 5000), donc le navigateur l'appelle en HTTP direct depuis la
+ * même machine que le frontend.
  */
 
 const HOTE = window.location.hostname;
-const API_LIVRES = `http://${HOTE}:5001`;
-const API_UTILISATEURS = `http://${HOTE}:5002`;
-const API_EMPRUNTS = `http://${HOTE}:5003`;
+const API_BASE = `http://${HOTE}:5001`;
+const API_LIVRES = API_BASE;
+const API_UTILISATEURS = API_BASE;
+const API_EMPRUNTS = API_BASE;
 
 // Caches locales utilisées pour afficher le titre d'un livre / le nom d'un
 // utilisateur dans l'historique des emprunts sans multiplier les appels API.

@@ -1,8 +1,8 @@
-# Bibliothèque Numérique — Plateforme Microservices
+# Bibliothèque Numérique
 
 Projet réalisé dans le cadre de l'examen pratique **Containers et Virtualisation (L2 DIT)**.
 
-Plateforme de gestion de bibliothèque numérique construite en **architecture microservices**, entièrement **conteneurisée avec Docker / Docker Compose**, et déployée via un pipeline **CI/CD Jenkins**.
+Plateforme de gestion de bibliothèque numérique, entièrement **conteneurisée avec Docker / Docker Compose**, et déployée via un pipeline **CI/CD Jenkins**.
 
 ---
 
@@ -13,30 +13,27 @@ Plateforme de gestion de bibliothèque numérique construite en **architecture m
                           │      Frontend        │
                           │  Nginx (port 8080)   │
                           │  HTML / CSS / JS     │
-                          └─────┬───────┬───────┘
-                     fetch()    │       │      fetch()
-              ┌─────────────────┘       └─────────────────┐
-              │                                             │
-   ┌──────────▼──────────┐                       ┌──────────▼──────────┐
-   │   service-livres     │                       │ service-utilisateurs │
-   │  Flask (port 5001)   │                       │   Flask (port 5002)  │
-   └──────────┬──────────┘                       └──────────┬──────────┘
-              │                                             │
-              │            ┌──────────────────────┐         │
-              └───────────►│   service-emprunts    │◄────────┘
-                HTTP        │   Flask (port 5003)   │
-             (requests)     └──────────┬───────────┘
-                                        │
-                              ┌─────────▼─────────┐
-                              │     PostgreSQL      │
-                              │     port 5432        │
-                              └──────────────────────┘
+                          └──────────┬───────────┘
+                                     │ fetch()
+                                     ▼
+                          ┌─────────────────────┐
+                          │       Backend         │
+                          │  Flask (port 5001)    │
+                          │  /livres /utilisateurs │
+                          │  /emprunts             │
+                          └──────────┬───────────┘
+                                     │ psycopg2
+                                     ▼
+                          ┌─────────────────────┐
+                          │      PostgreSQL       │
+                          │      port 5432         │
+                          └─────────────────────┘
 ```
 
-- **5 conteneurs** connectés au même réseau Docker (`reseau-bibliotheque`) : `postgres`, `service-livres`, `service-utilisateurs`, `service-emprunts`, `frontend`.
-- Une **seule base PostgreSQL** partagée, avec une table par service (`livres`, `utilisateurs`, `emprunts`).
-- Le **service Emprunts** communique avec le **service Livres via HTTP** (librairie `requests`) pour marquer un livre disponible/indisponible lors d'un emprunt ou d'un retour — c'est la communication inter-services du projet.
-- Le **frontend** appelle directement les 3 APIs backend via `fetch()` (CORS activé sur chaque service Flask).
+- **3 conteneurs** connectés au même réseau Docker (`reseau-bibliotheque`) : `postgres`, `backend`, `frontend`.
+- Un **seul service Flask** (`backend/app.py`) gère les trois domaines métier — livres, utilisateurs, emprunts — chacun sur son propre préfixe de route et sa propre table, dans la **même base PostgreSQL**.
+- Lors d'un emprunt ou d'un retour, la mise à jour de la disponibilité du livre se fait par un appel de fonction interne (même processus, même transaction), et non plus par une requête HTTP entre conteneurs.
+- Le **frontend** appelle l'API backend via `fetch()` (CORS activé côté Flask).
 
 ---
 
@@ -44,15 +41,7 @@ Plateforme de gestion de bibliothèque numérique construite en **architecture m
 
 ```
 bibliotheque-microservices/
-├── service-livres/         # API Flask - gestion des livres (port 5001)
-│   ├── app.py
-│   ├── requirements.txt
-│   └── Dockerfile
-├── service-utilisateurs/   # API Flask - gestion des utilisateurs (port 5002)
-│   ├── app.py
-│   ├── requirements.txt
-│   └── Dockerfile
-├── service-emprunts/       # API Flask - gestion des emprunts (port 5003)
+├── backend/                 # API Flask unique - livres, utilisateurs, emprunts (port 5001)
 │   ├── app.py
 │   ├── requirements.txt
 │   └── Dockerfile
@@ -61,16 +50,16 @@ bibliotheque-microservices/
 │   ├── style.css
 │   ├── script.js
 │   └── Dockerfile
-├── docker-compose.yml       # Orchestration des 5 conteneurs
+├── docker-compose.yml       # Orchestration des 3 conteneurs
 ├── Jenkinsfile               # Pipeline CI/CD
 └── README.md
 ```
 
 ---
 
-## 3. Fonctionnalités
+## 3. Fonctionnalités de l'API
 
-### Service Livres (`/livres`)
+### Livres (`/livres`)
 | Méthode | Route                             | Description                                  |
 |---------|------------------------------------|-----------------------------------------------|
 | GET     | `/livres`                          | Liste tous les livres                         |
@@ -79,11 +68,10 @@ bibliotheque-microservices/
 | POST    | `/livres`                          | Ajouter un livre                              |
 | PUT     | `/livres/<id>`                     | Modifier un livre                             |
 | DELETE  | `/livres/<id>`                     | Supprimer un livre                            |
-| PUT     | `/livres/<id>/disponibilite`       | (interne) Changer la disponibilité d'un livre |
 
-Champs : `id`, `titre`, `auteur`, `isbn`, `disponible` (booléen).
+Champs : `id`, `titre`, `auteur`, `isbn`, `disponible` (booléen). Un catalogue de 8 livres réels est inséré automatiquement au premier démarrage si la table est vide.
 
-### Service Utilisateurs (`/utilisateurs`)
+### Utilisateurs (`/utilisateurs`)
 | Méthode | Route                  | Description                    |
 |---------|-------------------------|---------------------------------|
 | GET     | `/utilisateurs`         | Liste tous les utilisateurs     |
@@ -92,7 +80,7 @@ Champs : `id`, `titre`, `auteur`, `isbn`, `disponible` (booléen).
 
 Champs : `id`, `nom`, `email`, `type` (`Etudiant`, `Professeur`, `Personnel administratif`).
 
-### Service Emprunts (`/emprunts`)
+### Emprunts (`/emprunts`)
 | Méthode | Route                    | Description                                          |
 |---------|---------------------------|--------------------------------------------------------|
 | GET     | `/emprunts`               | Historique complet des emprunts                       |
@@ -118,9 +106,9 @@ docker-compose up --build
 ```
 
 Cette commande unique :
-1. construit les 4 images Docker (3 services Flask + frontend Nginx),
+1. construit les 2 images Docker (backend Flask + frontend Nginx),
 2. démarre PostgreSQL et attend qu'il soit prêt (`healthcheck`),
-3. démarre les 3 microservices, chacun créant automatiquement sa table au démarrage,
+3. démarre le backend, qui crée automatiquement ses tables au démarrage,
 4. démarre le frontend.
 
 ### Accès aux services
@@ -128,9 +116,7 @@ Cette commande unique :
 | Service                | URL                         |
 |-------------------------|------------------------------|
 | Frontend (interface web)| http://localhost:8080        |
-| Service Livres           | http://localhost:5001/livres |
-| Service Utilisateurs     | http://localhost:5002/utilisateurs |
-| Service Emprunts         | http://localhost:5003/emprunts |
+| Backend (API)            | http://localhost:5001        |
 | PostgreSQL                | localhost:5432               |
 
 ### Arrêter la plateforme
@@ -152,7 +138,7 @@ docker-compose down -v
 Le fichier `Jenkinsfile` définit un pipeline déclaratif avec les étapes suivantes :
 
 1. **Checkout** : récupération du code source depuis le dépôt GitHub.
-2. **Build des images Docker** : `docker compose build` construit les images des 4 conteneurs applicatifs.
+2. **Build des images Docker** : `docker compose build` construit les images des 2 conteneurs applicatifs.
 3. **Déploiement** : `docker compose up -d` démarre (ou met à jour) la stack complète en arrière-plan.
 4. **Vérification** : `docker compose ps` liste les conteneurs actifs pour confirmer le déploiement.
 
@@ -168,12 +154,11 @@ Un bloc `post` affiche un message de succès ou d'échec selon le résultat du p
 
 ## 6. Détails techniques
 
-- **Connexion base de données** : chaque service Flask utilise `psycopg2` et lit ses paramètres de connexion (`DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`) depuis des variables d'environnement définies dans `docker-compose.yml`.
-- **Création automatique des tables** : chaque service exécute `CREATE TABLE IF NOT EXISTS` au démarrage, avec un mécanisme de nouvelles tentatives (retry) au cas où PostgreSQL ne serait pas encore prêt — aucune étape manuelle n'est nécessaire.
-- **CORS** : activé via `flask-cors` sur les 3 services pour permettre au frontend de les appeler depuis une origine différente.
-- **Communication inter-services** : `service-emprunts` appelle `service-livres` via HTTP (`requests`), en utilisant le nom du service Docker Compose (`http://service-livres:5001`) comme nom DNS interne au réseau `reseau-bibliotheque`.
+- **Connexion base de données** : le backend utilise `psycopg2` et lit ses paramètres de connexion (`DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`) depuis des variables d'environnement définies dans `docker-compose.yml`.
+- **Création automatique des tables** : le backend exécute `CREATE TABLE IF NOT EXISTS` pour les trois tables au démarrage, avec un mécanisme de nouvelles tentatives (retry) au cas où PostgreSQL ne serait pas encore prêt — aucune étape manuelle n'est nécessaire.
+- **CORS** : activé via `flask-cors` pour permettre au frontend de l'appeler depuis une origine différente.
 - **Persistance** : le volume nommé `postgres_data` conserve les données PostgreSQL même après un `docker-compose down` (sans `-v`).
-- **Gestion des erreurs** : les APIs renvoient des codes HTTP appropriés (`400` données invalides, `404` ressource introuvable, `409` conflit — ex. livre déjà emprunté/email déjà utilisé, `503`/`502` service injoignable).
+- **Gestion des erreurs** : l'API renvoie des codes HTTP appropriés (`400` données invalides, `404` ressource introuvable, `409` conflit — ex. livre déjà emprunté/email déjà utilisé).
 
 ---
 

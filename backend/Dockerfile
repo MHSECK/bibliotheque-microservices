@@ -8,7 +8,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY app.py .
 
-# Le service Utilisateurs écoute sur le port 5002
-EXPOSE 5002
+# Le backend écoute sur le port 5001
+EXPOSE 5001
 
 CMD ["python", "app.py"]

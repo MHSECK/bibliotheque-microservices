@@ -1,5 +1,5 @@
 // ==========================================================================
-// Pipeline CI/CD - Plateforme Bibliothèque Numérique (microservices)
+// Pipeline CI/CD - Plateforme Bibliothèque Numérique
 // Étapes : récupération du code -> build des images Docker -> déploiement
 // ==========================================================================
 
@@ -23,7 +23,7 @@ pipeline {
 
         stage('Build des images Docker') {
             steps {
-                echo 'Construction des images Docker pour les 4 conteneurs applicatifs...'
+                echo 'Construction des images Docker pour les 2 conteneurs applicatifs (backend + frontend)...'
                 sh 'docker compose build'
             }
         }
