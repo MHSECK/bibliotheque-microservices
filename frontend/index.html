@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bibliothèque Numérique - Microservices</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <header>
+    <h1>📚 Bibliothèque Numérique</h1>
+    <p>Plateforme microservices : Livres · Utilisateurs · Emprunts</p>
+  </header>
+
+  <nav class="onglets">
+    <button class="onglet-btn actif" data-cible="section-livres">Livres</button>
+    <button class="onglet-btn" data-cible="section-utilisateurs">Utilisateurs</button>
+    <button class="onglet-btn" data-cible="section-emprunts">Emprunts</button>
+  </nav>
+
+  <main>
+
+    <!-- ===================== SECTION LIVRES ===================== -->
+    <section id="section-livres" class="onglet-contenu actif">
+      <h2>Gestion des livres</h2>
+
+      <form id="form-livre" class="formulaire">
+        <input type="hidden" id="livre-id" />
+        <input type="text" id="livre-titre" placeholder="Titre" required />
+        <input type="text" id="livre-auteur" placeholder="Auteur" required />
+        <input type="text" id="livre-isbn" placeholder="ISBN" required />
+        <button type="submit">Ajouter / Modifier</button>
+        <button type="button" id="livre-annuler" class="secondaire">Annuler modification</button>
+      </form>
+
+      <div class="recherche">
+        <input type="text" id="recherche-titre" placeholder="Rechercher par titre" />
+        <input type="text" id="recherche-auteur" placeholder="Rechercher par auteur" />
+        <input type="text" id="recherche-isbn" placeholder="Rechercher par ISBN" />
+        <button id="btn-rechercher">Rechercher</button>
+        <button id="btn-reset-recherche" class="secondaire">Réinitialiser</button>
+      </div>
+
+      <div id="message-livres" class="message"></div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th><th>Titre</th><th>Auteur</th><th>ISBN</th><th>Disponible</th><th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="tableau-livres"></tbody>
+      </table>
+    </section>
+
+    <!-- ================== SECTION UTILISATEURS =================== -->
+    <section id="section-utilisateurs" class="onglet-contenu">
+      <h2>Gestion des utilisateurs</h2>
+
+      <form id="form-utilisateur" class="formulaire">
+        <input type="text" id="utilisateur-nom" placeholder="Nom complet" required />
+        <input type="email" id="utilisateur-email" placeholder="Email" required />
+        <select id="utilisateur-type" required>
+          <option value="" disabled selected>Type d'utilisateur</option>
+          <option value="Etudiant">Étudiant</option>
+          <option value="Professeur">Professeur</option>
+          <option value="Personnel administratif">Personnel administratif</option>
+        </select>
+        <button type="submit">Créer l'utilisateur</button>
+      </form>
+
+      <div id="message-utilisateurs" class="message"></div>
+
+      <table>
+        <thead>
+          <tr><th>ID</th><th>Nom</th><th>Email</th><th>Type</th></tr>
+        </thead>
+        <tbody id="tableau-utilisateurs"></tbody>
+      </table>
+    </section>
+
+    <!-- ==================== SECTION EMPRUNTS ===================== -->
+    <section id="section-emprunts" class="onglet-contenu">
+      <h2>Gestion des emprunts</h2>
+
+      <form id="form-emprunt" class="formulaire">
+        <input type="number" id="emprunt-id-livre" placeholder="ID du livre" required min="1" />
+        <input type="number" id="emprunt-id-utilisateur" placeholder="ID de l'utilisateur" required min="1" />
+        <button type="submit">Emprunter</button>
+      </form>
+
+      <div id="message-emprunts" class="message"></div>
+
+      <h3>Historique des emprunts</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th><th>ID Livre</th><th>ID Utilisateur</th>
+            <th>Date emprunt</th><th>Date retour</th><th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="tableau-emprunts"></tbody>
+      </table>
+    </section>
+
+  </main>
+
+  <footer>
+    <p>Examen Containers &amp; Virtualisation — L2 DIT — Architecture microservices Dockerisée</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

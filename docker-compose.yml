@@ -1,0 +1,111 @@
+# ==========================================================================
+# Plateforme Bibliothèque Numérique - Architecture microservices
+# 5 conteneurs : postgres, service-livres, service-utilisateurs,
+# service-emprunts, frontend, tous connectés au même réseau Docker.
+# ==========================================================================
+
+services:
+
+  # ------------------------- Base de données -------------------------
+  postgres:
+    image: postgres:16-alpine
+    container_name: postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: bibliotheque
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data   # Persistance des données
+    networks:
+      - reseau-bibliotheque
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # --------------------------- Service Livres ---------------------------
+  service-livres:
+    build: ./service-livres
+    container_name: service-livres
+    restart: unless-stopped
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: bibliotheque
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+    ports:
+      - "5001:5001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - reseau-bibliotheque
+
+  # ------------------------ Service Utilisateurs ------------------------
+  service-utilisateurs:
+    build: ./service-utilisateurs
+    container_name: service-utilisateurs
+    restart: unless-stopped
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: bibliotheque
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+    ports:
+      - "5002:5002"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - reseau-bibliotheque
+
+  # -------------------------- Service Emprunts --------------------------
+  service-emprunts:
+    build: ./service-emprunts
+    container_name: service-emprunts
+    restart: unless-stopped
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: bibliotheque
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      SERVICE_LIVRES_URL: http://service-livres:5001
+    ports:
+      - "5003:5003"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      service-livres:
+        condition: service_started
+    networks:
+      - reseau-bibliotheque
+
+  # ----------------------------- Frontend --------------------------------
+  frontend:
+    build: ./frontend
+    container_name: frontend
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    depends_on:
+      - service-livres
+      - service-utilisateurs
+      - service-emprunts
+    networks:
+      - reseau-bibliotheque
+
+# ------------------------------ Réseau -------------------------------
+networks:
+  reseau-bibliotheque:
+    driver: bridge
+
+# ---------------------- Volume de persistance PostgreSQL ----------------------
+volumes:
+  postgres_data:
