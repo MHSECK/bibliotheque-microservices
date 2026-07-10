@@ -8,7 +8,7 @@ pipeline {
 
     environment {
         // URL du dépôt GitHub contenant le projet (à adapter si besoin)
-        REPO_URL = 'https://github.com/<votre-utilisateur>/bibliotheque-microservices.git'
+        REPO_URL = 'https://github.com/MHSECK/bibliotheque-microservices.git'
         REPO_BRANCH = 'main'
     }
 
